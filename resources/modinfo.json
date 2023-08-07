@@ -1,0 +1,13 @@
+{
+  "type": "code",
+  "name": "ChatLinkItem",
+  "modid": "chatlinkitem",
+  "version": "1.0.0",
+  "description": "Link held item in chat",
+  "website": "https://github.com/BillyGalbreath/VS-ChatLinkItem",
+  "authors": [ "BillyGalbreath" ],
+  "side": "Server",
+  "dependency": {
+    "game": "1.18.0"
+  }
+}
