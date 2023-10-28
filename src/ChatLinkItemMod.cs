@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using Vintagestory.API.Common;
+using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
@@ -36,14 +37,14 @@ public class ChatLinkItemMod : ModSystem {
 
         int slotNum = sender.InventoryManager.ActiveHotbarSlotNumber;
         ItemStack itemStack = sender.InventoryManager.GetHotbarItemstack(slotNum);
-        string pageCode = GuiHandbookItemStackPage.PageCodeForStack(itemStack);
+        string pageCode = itemStack == null ? "" : GuiHandbookItemStackPage.PageCodeForStack(itemStack);
 
-        if (pageCode is not { Length: > 0 }) {
-            return;
-        }
+        string replacement = $"[{(pageCode is { Length: > 0 } ?
+            $"<a href=\"handbook://{pageCode}\">{itemStack!.GetName()}</a>" :
+            itemStack?.GetName() ?? Lang.Get("game:nothing"))}]";
 
         foreach (Match match in matches) {
-            message = message.Replace(match.Value, $"<a href=\"handbook://{pageCode}\">{itemStack.GetName()}</a>");
+            message = message.Replace(match.Value, replacement);
         }
     }
 }
