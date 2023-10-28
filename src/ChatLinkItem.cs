@@ -1,4 +1,3 @@
-using System;
 using Vintagestory.API.Common;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.Server;
@@ -7,9 +6,7 @@ using Vintagestory.GameContent;
 namespace PlayerList;
 
 public class ChatLinkItem : ModSystem {
-    private ICoreServerAPI api;
-
-    public override bool AllowRuntimeReload => true;
+    private ICoreServerAPI? api;
 
     public override bool ShouldLoad(EnumAppSide forSide) {
         return forSide.IsServer();
@@ -21,7 +18,9 @@ public class ChatLinkItem : ModSystem {
     }
 
     public override void Dispose() {
-        api.Event.PlayerChat -= OnPlayerChat;
+        if (api != null) {
+            api.Event.PlayerChat -= OnPlayerChat;
+        }
     }
 
     private void OnPlayerChat(IServerPlayer sender, int channel, ref string message, ref string data, BoolRef consumed) {
