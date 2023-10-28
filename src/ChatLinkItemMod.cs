@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 using Vintagestory.API.Common;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.Server;
@@ -6,6 +8,9 @@ using Vintagestory.GameContent;
 namespace ChatLinkItem;
 
 public class ChatLinkItemMod : ModSystem {
+    [SuppressMessage("GeneratedRegex", "SYSLIB1045:Convert to \'GeneratedRegexAttribute\'.")]
+    private static readonly Regex ITEM_LINK = new(@"(\[item\])", RegexOptions.IgnoreCase);
+
     private ICoreServerAPI? sapi;
 
     public override bool ShouldLoad(EnumAppSide forSide) {
@@ -24,7 +29,8 @@ public class ChatLinkItemMod : ModSystem {
     }
 
     private static void OnPlayerChat(IServerPlayer sender, int channel, ref string message, ref string data, BoolRef consumed) {
-        if (!message.Contains("[item]")) {
+        MatchCollection matches = ITEM_LINK.Matches(message);
+        if (matches.Count == 0) {
             return;
         }
 
@@ -32,8 +38,12 @@ public class ChatLinkItemMod : ModSystem {
         ItemStack itemStack = sender.InventoryManager.GetHotbarItemstack(slotNum);
         string pageCode = GuiHandbookItemStackPage.PageCodeForStack(itemStack);
 
-        if (pageCode is { Length: > 0 }) {
-            message = message.Replace("[item]", $"<a href=\"handbook://{pageCode}\">{itemStack.GetName()}</a>");
+        if (pageCode is not { Length: > 0 }) {
+            return;
+        }
+
+        foreach (Match match in matches) {
+            message = message.Replace(match.Value, $"<a href=\"handbook://{pageCode}\">{itemStack.GetName()}</a>");
         }
     }
 }
