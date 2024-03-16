@@ -1,46 +1,72 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <EmbedAllSources>true</EmbedAllSources>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+        <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
         <Nullable>enable</Nullable>
-  </PropertyGroup>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <DebugType>embedded</DebugType>
+        <DebugSymbols>true</DebugSymbols>
+        <ExcludeGeneratedDebugSymbol>false</ExcludeGeneratedDebugSymbol>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <Reference Include="VintagestoryAPI">
-      <HintPath>$(VINTAGE_STORY)/VintagestoryAPI.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-	<Reference Include="VSSurvivalMod">
-      <HintPath>$(VINTAGE_STORY)/Mods/VSSurvivalMod.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
-  
-  <ItemGroup Condition="'$(Configuration)' == 'Release'">
-        <None Include="LICENSE" CopyToOutputDirectory="PreserveNewest"/>
-        <None Include="resources/**">
+    <ItemGroup>
+        <Reference Include="Vintagestory">
+            <HintPath>$(VINTAGE_STORY)/Vintagestory.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="VintagestoryAPI">
+            <HintPath>$(VINTAGE_STORY)/VintagestoryAPI.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="VintagestoryLib">
+            <HintPath>$(VINTAGE_STORY)/VintagestoryLib.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="VintagestoryServer">
+            <HintPath>$(VINTAGE_STORY)/VintagestoryServer.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="VSCreative">
+            <HintPath>$(VINTAGE_STORY)/Mods/VSCreativeMod.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="VSEssentials">
+            <HintPath>$(VINTAGE_STORY)/Mods/VSEssentials.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="VSSurvivalMod">
+            <HintPath>$(VINTAGE_STORY)/Mods/VSSurvivalMod.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Harmony">
+            <HintPath>$(VINTAGE_STORY)/Lib/0Harmony.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Microsoft.Data.Sqlite">
+            <HintPath>$(VINTAGE_STORY)/Lib/Microsoft.Data.Sqlite.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="protobuf-net">
+            <HintPath>$(VINTAGE_STORY)/Lib/protobuf-net.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="LICENSE" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="resources/**" CopyToOutputDirectory="PreserveNewest">
             <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
 
-    <Target Name="FilterCopyLocalItems" AfterTargets="ResolvePackageDependenciesForBuild">
-        <ItemGroup>
-            <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'Microsoft.Extensions.DependencyInjection.Abstractions'"/>
-            <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'Newtonsoft.Json'"/>
-            <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'System.Interactive.Async'"/>
-            <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'System.Linq.Async'"/>
-            <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'System.Reactive'"/>
-        </ItemGroup>
+    <Target Name="Package" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
+        <MakeDir Directories="bin/Mods" />
+        <ZipDirectory DestinationFile="bin/Mods/$(TargetName).zip" SourceDirectory="$(TargetDir)" Overwrite="true" />
     </Target>
 
-    <Target Name="CreateModsDirectory" AfterTargets="PostBuildEvent">
-        <MakeDir Directories="bin/Mods"/>
-    </Target>
-
-    <Target Name="Package" AfterTargets="CreateModsDirectory" Condition="'$(Configuration)' == 'Release'">
-        <ZipDirectory DestinationFile="bin/Mods/$(TargetName).zip" SourceDirectory="$(TargetDir)" Overwrite="true"/>
-    </Target>
-  
 </Project>
