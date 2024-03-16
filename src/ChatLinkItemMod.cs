@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
@@ -8,29 +7,26 @@ using Vintagestory.GameContent;
 
 namespace ChatLinkItem;
 
-public class ChatLinkItemMod : ModSystem {
-    [SuppressMessage("GeneratedRegex", "SYSLIB1045:Convert to \'GeneratedRegexAttribute\'.")]
-    private static readonly Regex ITEM_LINK = new(@"(\[item\])", RegexOptions.IgnoreCase);
-
-    private ICoreServerAPI? sapi;
+public partial class ChatLinkItemMod : ModSystem {
+    private ICoreServerAPI? _sapi;
 
     public override bool ShouldLoad(EnumAppSide forSide) {
         return forSide.IsServer();
     }
 
     public override void StartServerSide(ICoreServerAPI api) {
-        sapi = api;
-        sapi.Event.PlayerChat += OnPlayerChat;
+        _sapi = api;
+        _sapi.Event.PlayerChat += OnPlayerChat;
     }
 
     public override void Dispose() {
-        if (sapi != null) {
-            sapi.Event.PlayerChat -= OnPlayerChat;
+        if (_sapi != null) {
+            _sapi.Event.PlayerChat -= OnPlayerChat;
         }
     }
 
     private static void OnPlayerChat(IServerPlayer sender, int channel, ref string message, ref string data, BoolRef consumed) {
-        MatchCollection matches = ITEM_LINK.Matches(message);
+        MatchCollection matches = ItemLinkRegex().Matches(message);
         if (matches.Count == 0) {
             return;
         }
@@ -47,4 +43,7 @@ public class ChatLinkItemMod : ModSystem {
             message = message.Replace(match.Value, replacement);
         }
     }
+
+    [GeneratedRegex(@"(\[item\])", RegexOptions.IgnoreCase, "en-US")]
+    private static partial Regex ItemLinkRegex();
 }
